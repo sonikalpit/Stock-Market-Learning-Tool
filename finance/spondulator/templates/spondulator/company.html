@@ -1,0 +1,112 @@
+{% extends "spondulator/layout.html" %}
+
+{% block title %}
+    Company Info
+{% endblock %}
+
+{% block main %}
+
+    {% if message %}
+        {{message}}
+    {% endif %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-5" style="padding-left: 0rem; padding-right: 1rem;text-align: end; color:maroon; font-size: large; font-weight: bolder; font-family: Georgia, 'Times New Roman', Times, serif;">
+                <h3>Learn more about Company</h3>
+            </div>
+            <div class="col-4"></div>
+        </div>
+    </div>
+    <br>
+
+    <form action="{% url 'company' %}" method="post">
+        {% csrf_token %}
+        <div class="container">
+            <div class="row">
+                <div class="col-4"></div>
+                <div class="col-4 d-flex flex-row"  style="padding-right: 2.5rem; padding-left: 3rem;color: rgba(10, 32, 57, 0.87); font-size: medium; font-weight: bold; font-family: Georgia, 'Times New Roman', Times, serif;">
+                    {{ form }}
+                </div>
+                <div class="col-4"></div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-5"></div>         
+                <div class="col-3" style="padding-right: 5.3rem; padding-left: 3.2rem;">   
+                    <button class="btn btn-dark btn-block" style="margin-top:8%" type="submit">Get Insights</button>
+                </div>
+                <div class="col-4"></div>
+            </div>
+        </div>
+    </form>
+
+    {% if flag %}
+        <br>
+        <div class="bg-light" style="height: 320px;">
+            <h5 style="font-family: Verdana, Geneva, Tahoma, sans-serif;">
+                Sentiment Breakdown for {{name}}
+            </h5>
+            <div class="mx-auto" id="container" style="position: relative; height:20vh; width:40vw; display: flex; justify-content: center;">
+                <canvas id="pie-chart"></canvas>
+            </div>
+        </div>
+
+        <br><br>
+        <div class="row">
+            {% for article in articles %}
+                <div class="col-sm-4">
+                    <div class="card bg-light border-dark" >
+                        <div class="card-body">
+                            
+                            <p class="card-title" style="font-size: large;"><b>Title:</b> {{ article.title|force_escape }}</p>
+                            <p class="card-text"><b>Author:</b> {{article.author}}</p>
+                            <p class="card-text"><b>Sentiment:</b> {{article.sentiment|capfirst }}</p>
+                            <p class="card-text"><b>Publication Data:</b> {{article.posted|escape}}</p>
+                            <a href={{article.url|safe}} target="_blank" class="btn  btn-dark">View Article</a>
+                        </div> 
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <script>
+            console.log("ok");
+            var x = '{{positive|escapejs}}';
+            var y = '{{negative|escapejs}}';
+            var z = '{{neutral|escapejs}}';
+            console.log(x);
+            console.log(y);
+            console.log(z);
+
+            var config = {
+                type: 'pie',
+                data: {
+                    datasets: [{
+                        data: [x, y, z],
+                        backgroundColor: [
+                            '#00ff00', '#ff0000', '#0000ff'
+                        ],
+                        label: 'Sentiment Analysis'
+                    }],
+
+                    // These labels appear in the legend and in the tooltips when hovering different arcs
+                    labels: [
+                        'Positive',
+                        'Negative',
+                        'Neutral'
+                    ]
+                },
+                options: {
+                    responsive: true
+                }
+            };
+
+            var ctx = document.getElementById('pie-chart').getContext('2d');
+            window.myPie = new Chart(ctx, config);
+        </script>
+    {% endif %}
+
+{% endblock %}
